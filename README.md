@@ -28,9 +28,12 @@ MOCK_MODE=true npm start
 ```
 
 Even when `MOCK_MODE` is unset, the backend automatically falls back to
-the mock data if an upstream Open-Meteo call fails. The response is
-tagged with `source: "mock-fallback"` in that case so the frontend can
-show a small notice.
+the mock data if an upstream Open-Meteo call fails or hangs longer than
+the configured timeout. The response is tagged with
+`source: "mock-fallback"` in that case so the frontend can show a small
+notice. The per-request timeout defaults to 5000ms and can be overridden
+by setting `WEATHER_FETCH_TIMEOUT_MS` to a positive integer (in
+milliseconds).
 
 ## API
 

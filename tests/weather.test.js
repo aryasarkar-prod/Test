@@ -101,6 +101,40 @@ describe('getWeather', () => {
     expect(result.daily).toHaveLength(7);
     expect(result.location.name).toBe('London');
   });
+
+  it('returns source "mock-fallback" when fetchImpl hangs longer than the timeout', async () => {
+    const previous = process.env.WEATHER_FETCH_TIMEOUT_MS;
+    process.env.WEATHER_FETCH_TIMEOUT_MS = '20';
+    try {
+      const fetchImpl = vi.fn((_url, opts) => {
+        const signal = opts && opts.signal;
+        return new Promise((_resolve, reject) => {
+          if (!signal) return;
+          if (signal.aborted) {
+            reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+            return;
+          }
+          signal.addEventListener('abort', () => {
+            reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+          });
+        });
+      });
+
+      const result = await getWeather('Paris', { fetchImpl });
+
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+      const opts = fetchImpl.mock.calls[0][1];
+      expect(opts && opts.signal).toBeDefined();
+      expect(result.source).toBe('mock-fallback');
+      expect(result.daily).toHaveLength(7);
+    } finally {
+      if (previous === undefined) {
+        delete process.env.WEATHER_FETCH_TIMEOUT_MS;
+      } else {
+        process.env.WEATHER_FETCH_TIMEOUT_MS = previous;
+      }
+    }
+  });
 });
 
 describe('weatherCodeToText', () => {

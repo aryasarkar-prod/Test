@@ -3,6 +3,31 @@ import { mockGeocode, mockForecast, weatherCodeToText } from './mockData.js';
 const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 
+const DEFAULT_FETCH_TIMEOUT_MS = 5000;
+
+function resolveFetchTimeoutMs() {
+  const raw = process.env.WEATHER_FETCH_TIMEOUT_MS;
+  if (raw === undefined || raw === '') {
+    return DEFAULT_FETCH_TIMEOUT_MS;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return DEFAULT_FETCH_TIMEOUT_MS;
+}
+
+function timeoutSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => {
+    controller.abort(Object.assign(new Error('timeout'), { name: 'AbortError' }));
+  }, ms);
+  return controller.signal;
+}
+
 function buildResponse(source, geo, forecast) {
   const dailyTimes = forecast.daily.time;
   const daily = dailyTimes.map((date, i) => {
@@ -49,9 +74,10 @@ export async function getWeather(city, { mockMode = false, fetchImpl = globalThi
   }
 
   try {
+    const fetchTimeoutMs = resolveFetchTimeoutMs();
     const geocodeUrl =
       `${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
-    const geoRes = await fetchImpl(geocodeUrl);
+    const geoRes = await fetchImpl(geocodeUrl, { signal: timeoutSignal(fetchTimeoutMs) });
     if (!geoRes || !geoRes.ok) {
       throw new Error(`Geocoding request failed with status ${geoRes && geoRes.status}`);
     }
@@ -76,7 +102,7 @@ export async function getWeather(city, { mockMode = false, fetchImpl = globalThi
       `&current=temperature_2m,weather_code,wind_speed_10m` +
       `&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum` +
       `&timezone=auto&forecast_days=7`;
-    const forecastRes = await fetchImpl(forecastUrl);
+    const forecastRes = await fetchImpl(forecastUrl, { signal: timeoutSignal(fetchTimeoutMs) });
     if (!forecastRes || !forecastRes.ok) {
       throw new Error(`Forecast request failed with status ${forecastRes && forecastRes.status}`);
     }
