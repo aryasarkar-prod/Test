@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — EduManage</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="dashboard-page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span>🎓</span>
+      <span class="brand-name">EduManage</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="showSection('overview', this)">
+        <span class="nav-icon">🏠</span> <span>Overview</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('students', this)">
+        <span class="nav-icon">🎒</span> <span>Students</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('teachers', this)">
+        <span class="nav-icon">👨‍🏫</span> <span>Teachers</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('courses', this)">
+        <span class="nav-icon">📚</span> <span>Courses</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('announcements', this)">
+        <span class="nav-icon">📣</span> <span>Announcements</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('reports', this)">
+        <span class="nav-icon">📊</span> <span>Reports</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="page-title" id="pageTitle">Overview</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbarDate"></div>
+        <div class="user-avatar" style="background:linear-gradient(135deg,#dc2626,#b91c1c)" id="userAvatar">A</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">Admin</span>
+          <span class="user-role">Administrator</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── OVERVIEW ── -->
+    <section class="section active" id="sec-overview">
+      <div class="welcome-banner" style="background:linear-gradient(135deg,rgba(220,38,38,0.2),rgba(185,28,28,0.15));border-color:rgba(220,38,38,0.3)">
+        <div>
+          <h2 id="welcomeMsg">Welcome, Admin! 🛡️</h2>
+          <p>Springfield College — System Overview</p>
+        </div>
+        <div class="welcome-emoji">🛡️</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">🎒</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">1,248</span>
+            <span class="stat-card-label">Total Students</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">👨‍🏫</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">84</span>
+            <span class="stat-card-label">Total Teachers</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">📚</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">52</span>
+            <span class="stat-card-label">Active Courses</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-card-icon">📋</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">3</span>
+            <span class="stat-card-label">Departments</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>🕐 Recent Activity</h3>
+          </div>
+          <div id="recentActivity"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>⚡ Quick Actions</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn-primary" style="justify-content:flex-start;gap:10px" onclick="showSection('students',null)">🎒 Manage Students</button>
+            <button class="btn-primary" style="justify-content:flex-start;gap:10px;background:linear-gradient(135deg,#059669,#0d9488)" onclick="showSection('teachers',null)">👨‍🏫 Manage Teachers</button>
+            <button class="btn-primary" style="justify-content:flex-start;gap:10px;background:linear-gradient(135deg,#d97706,#b45309)" onclick="showSection('announcements',null)">📣 Post Announcement</button>
+            <button class="btn-primary" style="justify-content:flex-start;gap:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9)" onclick="showSection('reports',null)">📊 View Reports</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Department Stats -->
+      <div class="card">
+        <div class="card-header-row"><h3>🏫 Department Overview</h3></div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Department</th><th>Students</th><th>Teachers</th><th>Courses</th><th>Avg Attendance</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Computer Science</td><td>480</td><td>32</td><td>18</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="grade-bar-wrapper" style="width:60px;margin:0"><div class="grade-bar" style="width:89%"></div></div>89%</div></td>
+              <td><span class="status-badge status-submitted">✅ Active</span></td>
+            </tr>
+            <tr>
+              <td>Mathematics</td><td>310</td><td>24</td><td>16</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="grade-bar-wrapper" style="width:60px;margin:0"><div class="grade-bar" style="width:85%"></div></div>85%</div></td>
+              <td><span class="status-badge status-submitted">✅ Active</span></td>
+            </tr>
+            <tr>
+              <td>Physics</td><td>290</td><td>18</td><td>12</td>
+              <td><div style="display:flex;align-items:center;gap:8px"><div class="grade-bar-wrapper" style="width:60px;margin:0"><div class="grade-bar" style="width:82%"></div></div>82%</div></td>
+              <td><span class="status-badge status-submitted">✅ Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── STUDENTS ── -->
+    <section class="section" id="sec-students">
+      <div class="section-header">
+        <h2>🎒 Student Management</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="text" id="adminStudentSearch" placeholder="🔍 Search students..." class="search-box-sm" style="padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;outline:none;width:220px" oninput="adminFilterStudents()" />
+          <button class="btn-primary" onclick="openAddStudentModal()">+ Add Student</button>
+        </div>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Student</th><th>ID</th><th>Department</th><th>Attendance</th><th>GPA</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="adminStudentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── TEACHERS ── -->
+    <section class="section" id="sec-teachers">
+      <div class="section-header">
+        <h2>👨‍🏫 Teacher Management</h2>
+        <button class="btn-primary" onclick="openAddTeacherModal()">+ Add Teacher</button>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Teacher</th><th>ID</th><th>Department</th><th>Designation</th><th>Courses</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="adminTeachersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── COURSES ── -->
+    <section class="section" id="sec-courses">
+      <div class="section-header">
+        <h2>📚 Course Management</h2>
+        <button class="btn-primary" onclick="openAddCourseModal()">+ Add Course</button>
+      </div>
+      <div class="assignments-grid" id="coursesGrid"></div>
+    </section>
+
+    <!-- ── ANNOUNCEMENTS ── -->
+    <section class="section" id="sec-announcements">
+      <div class="section-header">
+        <h2>📣 Announcements</h2>
+        <button class="btn-primary" onclick="openCreateAnnouncement()">+ New Announcement</button>
+      </div>
+      <div class="announcements-list" id="announcementsList"></div>
+    </section>
+
+    <!-- ── REPORTS ── -->
+    <section class="section" id="sec-reports">
+      <div class="section-header"><h2>📊 Reports & Analytics</h2></div>
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-card-icon">📈</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">87%</span>
+            <span class="stat-card-label">Avg Attendance</span>
+          </div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-card-icon">🏆</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">3.4</span>
+            <span class="stat-card-label">Avg GPA</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">📋</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">93%</span>
+            <span class="stat-card-label">Assignment Submission Rate</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">96%</span>
+            <span class="stat-card-label">Pass Rate</span>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header-row"><h3>📊 Grade Distribution</h3></div>
+          <div id="gradeDistribution"></div>
+        </div>
+        <div class="card">
+          <div class="card-header-row"><h3>🎒 Attendance by Department</h3></div>
+          <div id="attendanceReport"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add Student Modal -->
+  <div class="modal-overlay hidden" id="addStudentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🎒 Add New Student</h3>
+        <button class="modal-close" onclick="closeModal('addStudentModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="newStudentName" placeholder="e.g. John Smith" /></div>
+          <div class="form-group"><label>Student ID *</label><input type="text" id="newStudentId" placeholder="e.g. STU2024009" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Department</label>
+            <select id="newStudentDept"><option>Computer Science</option><option>Mathematics</option><option>Physics</option></select>
+          </div>
+          <div class="form-group"><label>Year</label>
+            <select id="newStudentYear"><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label>Email *</label><input type="email" id="newStudentEmail" placeholder="student@college.edu" /></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+        <button class="btn-primary" onclick="addStudent()">🎒 Add Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Teacher Modal -->
+  <div class="modal-overlay hidden" id="addTeacherModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>👨‍🏫 Add New Teacher</h3>
+        <button class="modal-close" onclick="closeModal('addTeacherModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="newTeacherName" placeholder="e.g. Dr. John Smith" /></div>
+          <div class="form-group"><label>Teacher ID *</label><input type="text" id="newTeacherId" placeholder="e.g. TCH002" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Department</label>
+            <select id="newTeacherDept"><option>Computer Science</option><option>Mathematics</option><option>Physics</option></select>
+          </div>
+          <div class="form-group"><label>Designation</label>
+            <select id="newTeacherDesig"><option>Professor</option><option>Assistant Professor</option><option>Lecturer</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label>Email *</label><input type="email" id="newTeacherEmail" placeholder="teacher@college.edu" /></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('addTeacherModal')">Cancel</button>
+        <button class="btn-primary" onclick="addTeacher()">👨‍🏫 Add Teacher</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Course Modal -->
+  <div class="modal-overlay hidden" id="addCourseModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📚 Add New Course</h3>
+        <button class="modal-close" onclick="closeModal('addCourseModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>Course Name *</label><input type="text" id="newCourseName" placeholder="e.g. Machine Learning" /></div>
+          <div class="form-group"><label>Course Code *</label><input type="text" id="newCourseCode" placeholder="e.g. CS501" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Department</label>
+            <select id="newCourseDept"><option>Computer Science</option><option>Mathematics</option><option>Physics</option></select>
+          </div>
+          <div class="form-group"><label>Credits</label>
+            <input type="number" id="newCourseCredits" value="3" min="1" max="6" />
+          </div>
+        </div>
+        <div class="form-group"><label>Assigned Teacher</label>
+          <select id="newCourseTeacher"><option value="TCH001">Dr. Emily Carter</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('addCourseModal')">Cancel</button>
+        <button class="btn-primary" onclick="addCourse()">📚 Add Course</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcement Modal -->
+  <div class="modal-overlay hidden" id="createAnnouncementModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📣 New Announcement</h3>
+        <button class="modal-close" onclick="closeModal('createAnnouncementModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label>Title *</label><input type="text" id="newAnnTitle" placeholder="Announcement title" /></div>
+        <div class="form-group"><label>Message *</label><textarea id="newAnnMessage" rows="4" placeholder="Write your announcement..."></textarea></div>
+        <div class="form-group"><label>Target Audience</label>
+          <select id="newAnnTarget"><option value="all">Everyone</option><option value="students">Students Only</option><option value="teachers">Teachers Only</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('createAnnouncementModal')">Cancel</button>
+        <button class="btn-primary" onclick="postAnnouncement()">📣 Post</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

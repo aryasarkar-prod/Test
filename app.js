@@ -152,7 +152,7 @@ function handleLogin(e) {
       sessionStorage.setItem('eduUser', JSON.stringify({ id, ...user }));
       if (user.role === 'student') window.location.href = 'student-dashboard.html';
       else if (user.role === 'teacher') window.location.href = 'teacher-dashboard.html';
-      else window.location.href = 'teacher-dashboard.html';
+      else if (user.role === 'admin') window.location.href = 'admin-dashboard.html';
     } else {
       if (btnText) btnText.textContent = 'Sign In';
       if (spinner) spinner.classList.add('hidden');
@@ -778,10 +778,244 @@ function renderTeacherProfile(user) {
   }
 }
 
-/* ─── PAGE INIT ─────────────────────────────────────────── */
+/* ─── PAGE INIT (see bottom of file for updated version) ── */
+
+
+
+/* ─── ADMIN DASHBOARD ───────────────────────────────────── */
+const adminData = {
+  students: [
+    { id: 'STU2024001', name: 'Alex Johnson',  dept: 'Computer Science', attendance: 92, gpa: 3.8, status: 'Active' },
+    { id: 'STU2024002', name: 'Maria Garcia',  dept: 'Computer Science', attendance: 87, gpa: 3.5, status: 'Active' },
+    { id: 'STU2024003', name: 'David Lee',     dept: 'Computer Science', attendance: 78, gpa: 3.2, status: 'Active' },
+    { id: 'STU2024004', name: 'Sophie Brown',  dept: 'Mathematics',      attendance: 95, gpa: 3.9, status: 'Active' },
+    { id: 'STU2024005', name: 'James Wilson',  dept: 'Computer Science', attendance: 65, gpa: 2.8, status: 'Warning' },
+    { id: 'STU2024006', name: 'Emma Davis',    dept: 'Computer Science', attendance: 88, gpa: 3.6, status: 'Active' },
+    { id: 'STU2024007', name: 'Liam Martinez', dept: 'Physics',          attendance: 91, gpa: 3.7, status: 'Active' },
+    { id: 'STU2024008', name: 'Olivia Taylor', dept: 'Mathematics',      attendance: 72, gpa: 3.0, status: 'Active' },
+  ],
+  teachers: [
+    { id: 'TCH001', name: 'Dr. Emily Carter', dept: 'Computer Science', desig: 'Assistant Professor', courses: 3, status: 'Active' },
+    { id: 'TCH002', name: 'Prof. Alan Grant',  dept: 'Mathematics',      desig: 'Professor',           courses: 2, status: 'Active' },
+    { id: 'TCH003', name: 'Dr. Sarah Connor',  dept: 'Physics',          desig: 'Associate Professor', courses: 4, status: 'Active' },
+    { id: 'TCH004', name: 'Mr. Bruce Wayne',   dept: 'Computer Science', desig: 'Lecturer',            courses: 2, status: 'Active' },
+  ],
+  courses: [
+    { code: 'CS101', name: 'Data Structures',   dept: 'Computer Science', credits: 4, teacher: 'Dr. Emily Carter', students: 48, status: 'Active' },
+    { code: 'CS201', name: 'Algorithms',         dept: 'Computer Science', credits: 4, teacher: 'Dr. Emily Carter', students: 45, status: 'Active' },
+    { code: 'CS301', name: 'Database Systems',   dept: 'Computer Science', credits: 3, teacher: 'Dr. Emily Carter', students: 40, status: 'Active' },
+    { code: 'CS302', name: 'Operating Systems',  dept: 'Computer Science', credits: 3, teacher: 'Mr. Bruce Wayne',  students: 42, status: 'Active' },
+    { code: 'MA101', name: 'Calculus I',         dept: 'Mathematics',      credits: 4, teacher: 'Prof. Alan Grant',  students: 55, status: 'Active' },
+    { code: 'PH101', name: 'Physics I',          dept: 'Physics',          credits: 4, teacher: 'Dr. Sarah Connor',  students: 50, status: 'Active' },
+  ],
+};
+
+function initAdminDashboard() {
+  const user = getUser();
+  if (!user || user.role !== 'admin') { window.location.href = 'index.html'; return; }
+
+  setTopbarDate();
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userAvatar').textContent = user.name[0];
+  document.getElementById('welcomeMsg').textContent = `Welcome, ${user.name.split(' ')[0]}! 🛡️`;
+
+  renderRecentActivity();
+  renderAdminStudents();
+  renderAdminTeachers();
+  renderAdminCourses();
+  renderAnnouncements();
+  renderReports();
+}
+
+function renderRecentActivity() {
+  const container = document.getElementById('recentActivity');
+  if (!container) return;
+  const activities = [
+    { icon: '📋', text: 'New assignment posted by Dr. Emily Carter', time: '2 mins ago' },
+    { icon: '🎒', text: 'Student STU2024009 enrolled in CS101',       time: '15 mins ago' },
+    { icon: '📣', text: 'Announcement: Exam schedule published',      time: '1 hour ago' },
+    { icon: '✅', text: 'Attendance marked for CS201 — Tue class',    time: '2 hours ago' },
+    { icon: '🏆', text: 'Grades updated for CS301 by Dr. Carter',     time: '3 hours ago' },
+  ];
+  container.innerHTML = activities.map(a => `
+    <div class="sub-item">
+      <div class="sub-avatar" style="background:var(--surface2);font-size:18px">${a.icon}</div>
+      <div class="sub-info">
+        <div class="sub-name" style="font-size:13px">${a.text}</div>
+        <div class="sub-assign">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderAdminStudents(query = '') {
+  const tbody = document.getElementById('adminStudentsBody');
+  if (!tbody) return;
+  const list = adminData.students.filter(s =>
+    !query || s.name.toLowerCase().includes(query.toLowerCase()) || s.id.includes(query)
+  );
+  tbody.innerHTML = list.map(s => `<tr>
+    <td><div style="display:flex;align-items:center;gap:10px">
+      <div class="sub-avatar">${s.name[0]}</div>${s.name}
+    </div></td>
+    <td style="color:var(--text-muted);font-size:13px">${s.id}</td>
+    <td>${s.dept}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="grade-bar-wrapper" style="width:60px;margin:0"><div class="grade-bar" style="width:${s.attendance}%"></div></div>
+        <span style="font-size:13px">${s.attendance}%</span>
+      </div>
+    </td>
+    <td style="font-weight:600">${s.gpa}</td>
+    <td><span class="status-badge ${s.status === 'Active' ? 'status-submitted' : 'status-urgent'}">${s.status}</span></td>
+    <td>
+      <button class="btn-outline" onclick="removeStudent('${s.id}')">🗑 Remove</button>
+    </td>
+  </tr>`).join('');
+}
+
+function adminFilterStudents() {
+  const q = document.getElementById('adminStudentSearch')?.value || '';
+  renderAdminStudents(q);
+}
+
+function renderAdminTeachers() {
+  const tbody = document.getElementById('adminTeachersBody');
+  if (!tbody) return;
+  tbody.innerHTML = adminData.teachers.map(t => `<tr>
+    <td><div style="display:flex;align-items:center;gap:10px">
+      <div class="sub-avatar" style="background:linear-gradient(135deg,#059669,#0d9488)">${t.name[0]}</div>${t.name}
+    </div></td>
+    <td style="color:var(--text-muted);font-size:13px">${t.id}</td>
+    <td>${t.dept}</td>
+    <td>${t.desig}</td>
+    <td>${t.courses}</td>
+    <td><span class="status-badge status-submitted">✅ ${t.status}</span></td>
+    <td><button class="btn-outline" onclick="removeTeacher('${t.id}')">🗑 Remove</button></td>
+  </tr>`).join('');
+}
+
+function renderAdminCourses() {
+  const container = document.getElementById('coursesGrid');
+  if (!container) return;
+  container.innerHTML = adminData.courses.map(c => `
+    <div class="assign-card">
+      <div class="assign-card-header">
+        <div class="assign-card-title">${c.name}</div>
+        <span class="status-badge status-active">🟢 ${c.status}</span>
+      </div>
+      <div class="assign-card-course">🏷️ ${c.code} &nbsp;|&nbsp; ${c.dept}</div>
+      <div style="font-size:13px;color:var(--text-muted)">👨‍🏫 ${c.teacher}</div>
+      <div class="assign-card-footer">
+        <span class="assign-card-due">🎒 ${c.students} students</span>
+        <span class="assign-card-marks">${c.credits} credits</span>
+      </div>
+      <button class="btn-outline" style="width:100%;margin-top:8px" onclick="removeCourse('${c.code}')">🗑 Remove Course</button>
+    </div>`).join('');
+}
+
+function renderReports() {
+  const gradeEl = document.getElementById('gradeDistribution');
+  if (gradeEl) {
+    const grades = [{ g: 'A', pct: 42, color: '#22c55e' }, { g: 'B', pct: 31, color: '#38bdf8' }, { g: 'C', pct: 17, color: '#eab308' }, { g: 'D', pct: 7, color: '#f97316' }, { g: 'F', pct: 3, color: '#ef4444' }];
+    gradeEl.innerHTML = grades.map(g => `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <span style="font-weight:700;width:20px;color:${g.color}">${g.g}</span>
+        <div class="grade-bar-wrapper" style="flex:1;margin:0"><div class="grade-bar" style="width:${g.pct}%;background:${g.color}"></div></div>
+        <span style="font-size:13px;font-weight:600;width:36px">${g.pct}%</span>
+      </div>`).join('');
+  }
+
+  const attEl = document.getElementById('attendanceReport');
+  if (attEl) {
+    const depts = [{ name: 'Computer Science', pct: 89 }, { name: 'Mathematics', pct: 85 }, { name: 'Physics', pct: 82 }];
+    attEl.innerHTML = depts.map(d => `
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span>${d.name}</span><span style="font-weight:600">${d.pct}%</span>
+        </div>
+        <div class="grade-bar-wrapper" style="margin:0"><div class="grade-bar" style="width:${d.pct}%"></div></div>
+      </div>`).join('');
+  }
+}
+
+function openAddStudentModal() { openModal('addStudentModal'); }
+function openAddTeacherModal() { openModal('addTeacherModal'); }
+function openAddCourseModal()  { openModal('addCourseModal'); }
+function openCreateAnnouncement() { openModal('createAnnouncementModal'); }
+
+function addStudent() {
+  const name  = document.getElementById('newStudentName')?.value.trim();
+  const id    = document.getElementById('newStudentId')?.value.trim();
+  const dept  = document.getElementById('newStudentDept')?.value;
+  const email = document.getElementById('newStudentEmail')?.value.trim();
+  if (!name || !id || !email) { showToast('Please fill all required fields.', 'error'); return; }
+  adminData.students.push({ id, name, dept, attendance: 0, gpa: 0.0, status: 'Active' });
+  closeModal('addStudentModal');
+  showToast(`Student ${name} added! 🎒`);
+  renderAdminStudents();
+}
+
+function addTeacher() {
+  const name  = document.getElementById('newTeacherName')?.value.trim();
+  const id    = document.getElementById('newTeacherId')?.value.trim();
+  const dept  = document.getElementById('newTeacherDept')?.value;
+  const desig = document.getElementById('newTeacherDesig')?.value;
+  const email = document.getElementById('newTeacherEmail')?.value.trim();
+  if (!name || !id || !email) { showToast('Please fill all required fields.', 'error'); return; }
+  adminData.teachers.push({ id, name, dept, desig, courses: 0, status: 'Active' });
+  closeModal('addTeacherModal');
+  showToast(`Teacher ${name} added! 👨‍🏫`);
+  renderAdminTeachers();
+}
+
+function addCourse() {
+  const name    = document.getElementById('newCourseName')?.value.trim();
+  const code    = document.getElementById('newCourseCode')?.value.trim();
+  const dept    = document.getElementById('newCourseDept')?.value;
+  const credits = document.getElementById('newCourseCredits')?.value || 3;
+  const teacher = document.getElementById('newCourseTeacher')?.value;
+  if (!name || !code) { showToast('Please fill all required fields.', 'error'); return; }
+  adminData.courses.push({ code, name, dept, credits: parseInt(credits), teacher: 'Dr. Emily Carter', students: 0, status: 'Active' });
+  closeModal('addCourseModal');
+  showToast(`Course ${name} added! 📚`);
+  renderAdminCourses();
+}
+
+function postAnnouncement() {
+  const title = document.getElementById('newAnnTitle')?.value.trim();
+  const body  = document.getElementById('newAnnMessage')?.value.trim();
+  if (!title || !body) { showToast('Please fill title and message.', 'error'); return; }
+  DB.announcements.unshift({ id: DB.announcements.length + 1, title, body, author: 'Admin', date: new Date().toISOString().split('T')[0], tag: 'Notice', isNew: true });
+  closeModal('createAnnouncementModal');
+  showToast('Announcement posted! 📣');
+  renderAnnouncements();
+}
+
+function removeStudent(id) {
+  const idx = adminData.students.findIndex(s => s.id === id);
+  if (idx !== -1) adminData.students.splice(idx, 1);
+  showToast('Student removed.');
+  renderAdminStudents();
+}
+
+function removeTeacher(id) {
+  const idx = adminData.teachers.findIndex(t => t.id === id);
+  if (idx !== -1) adminData.teachers.splice(idx, 1);
+  showToast('Teacher removed.');
+  renderAdminTeachers();
+}
+
+function removeCourse(code) {
+  const idx = adminData.courses.findIndex(c => c.code === code);
+  if (idx !== -1) adminData.courses.splice(idx, 1);
+  showToast('Course removed.');
+  renderAdminCourses();
+}
+
+/* ─── PAGE INIT (updated) ───────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
   if (path.includes('student-dashboard')) initStudentDashboard();
   else if (path.includes('teacher-dashboard')) initTeacherDashboard();
-  // login page has inline handlers
+  else if (path.includes('admin-dashboard')) initAdminDashboard();
 });
