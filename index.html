@@ -3,113 +3,172 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weather App</title>
+  <title>EduManage — College Student Management System</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
-<body>
-  <div class="app">
-    <!-- Search Bar -->
-    <div class="search-container">
-      <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input
-          type="text"
-          id="cityInput"
-          placeholder="Search city..."
-          autocomplete="off"
-        />
-        <button id="searchBtn" aria-label="Search">Go</button>
+<body class="login-page">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">🎓</span>
+      <span class="brand-name">EduManage</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+      <a href="#login-section" class="btn-nav">Login</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🏫 Springfield College Portal</div>
+      <h1 class="hero-title">Smart College <br/><span class="gradient-text">Management System</span></h1>
+      <p class="hero-subtitle">A unified platform for students and teachers — manage attendance, assignments, grades, and more, all in one place.</p>
+      <div class="hero-stats">
+        <div class="stat-item"><span class="stat-num">1,200+</span><span class="stat-label">Students</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><span class="stat-num">80+</span><span class="stat-label">Teachers</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><span class="stat-num">50+</span><span class="stat-label">Courses</span></div>
       </div>
-      <div id="suggestions" class="suggestions hidden"></div>
     </div>
-
-    <!-- Error Message -->
-    <div id="errorMsg" class="error hidden">
-      <span>⚠️</span> <span id="errorText">City not found. Please try again.</span>
+    <div class="hero-image">
+      <div class="floating-card card-1">📚 3 Assignments Due</div>
+      <div class="floating-card card-2">✅ Attendance: 92%</div>
+      <div class="floating-card card-3">🏆 GPA: 3.8</div>
+      <div class="hero-illustration">🎓</div>
     </div>
+  </section>
 
-    <!-- Loading Spinner -->
-    <div id="loading" class="loading hidden">
-      <div class="spinner"></div>
-      <p>Fetching weather...</p>
+  <!-- Features -->
+  <section class="features" id="features">
+    <h2 class="section-title">Everything You Need</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Assignment Portal</h3>
+        <p>Teachers post assignments; students submit and track deadlines with ease.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Grade Tracker</h3>
+        <p>Real-time grade updates, GPA calculation, and performance analytics.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗓️</div>
+        <h3>Attendance Management</h3>
+        <p>Teachers mark attendance; students view their records anytime.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📣</div>
+        <h3>Announcements</h3>
+        <p>College-wide and class-specific notices delivered instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <h3>Student Profiles</h3>
+        <p>Manage student data, contact info, and academic history.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Timetable</h3>
+        <p>View weekly class schedules for students and teachers.</p>
+      </div>
     </div>
+  </section>
 
-    <!-- Weather Card -->
-    <div id="weatherCard" class="weather-card hidden">
-
-      <!-- Header -->
-      <div class="card-header">
-        <div class="location">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          <span id="cityName">—</span>
-          <span id="countryName" class="country"></span>
-        </div>
-        <p id="dateTime" class="datetime"></p>
+  <!-- Login Section -->
+  <section class="login-section" id="login-section">
+    <div class="login-container">
+      <div class="login-header">
+        <span class="login-icon">🔐</span>
+        <h2>Sign In to Your Portal</h2>
+        <p>Select your role and enter your credentials</p>
       </div>
 
-      <!-- Main Temp -->
-      <div class="main-weather">
-        <div class="temp-block">
-          <span id="weatherIcon" class="weather-emoji">🌤</span>
-          <div>
-            <p id="temperature" class="temperature">—</p>
-            <p id="feelsLike" class="feels-like">Feels like —</p>
+      <!-- Role Tabs -->
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="student" onclick="switchRole('student')">
+          🎒 Student
+        </button>
+        <button class="role-tab" data-role="teacher" onclick="switchRole('teacher')">
+          👨‍🏫 Teacher
+        </button>
+        <button class="role-tab" data-role="admin" onclick="switchRole('admin')">
+          🛡️ Admin
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="userId">
+            <span id="userIdLabel">Student ID</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="userId" placeholder="e.g. STU2024001" required autocomplete="off" />
           </div>
         </div>
-        <p id="weatherDesc" class="weather-desc">—</p>
-      </div>
 
-      <!-- Stats Row -->
-      <div class="stats-grid">
-        <div class="stat">
-          <span class="stat-icon">💧</span>
-          <span class="stat-label">Humidity</span>
-          <span id="humidity" class="stat-value">—</span>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="Enter your password" required />
+            <button type="button" class="toggle-pw" onclick="togglePassword()">👁️</button>
+          </div>
         </div>
-        <div class="stat">
-          <span class="stat-icon">💨</span>
-          <span class="stat-label">Wind</span>
-          <span id="windSpeed" class="stat-value">—</span>
-        </div>
-        <div class="stat">
-          <span class="stat-icon">🌡</span>
-          <span class="stat-label">High / Low</span>
-          <span id="highLow" class="stat-value">—</span>
-        </div>
-        <div class="stat">
-          <span class="stat-icon">👁</span>
-          <span class="stat-label">Visibility</span>
-          <span id="visibility" class="stat-value">—</span>
-        </div>
-        <div class="stat">
-          <span class="stat-icon">🌅</span>
-          <span class="stat-label">Sunrise</span>
-          <span id="sunrise" class="stat-value">—</span>
-        </div>
-        <div class="stat">
-          <span class="stat-icon">🌇</span>
-          <span class="stat-label">Sunset</span>
-          <span id="sunset" class="stat-value">—</span>
-        </div>
-      </div>
 
-      <!-- 5-Day Forecast -->
-      <div class="forecast-section">
-        <h3 class="forecast-title">5-Day Forecast</h3>
-        <div id="forecastRow" class="forecast-row"></div>
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="rememberMe" /> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div id="loginError" class="login-error hidden">
+          ⚠️ Invalid credentials. Please try again.
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span id="loginBtnText">Sign In</span>
+          <span id="loginSpinner" class="btn-spinner hidden">⏳</span>
+        </button>
+      </form>
+
+      <!-- Demo Credentials -->
+      <div class="demo-creds">
+        <p class="demo-title">🧪 Demo Credentials</p>
+        <div class="demo-grid">
+          <div class="demo-item" onclick="fillDemo('student')">
+            <strong>Student:</strong> STU2024001 / pass123
+          </div>
+          <div class="demo-item" onclick="fillDemo('teacher')">
+            <strong>Teacher:</strong> TCH001 / teach123
+          </div>
+          <div class="demo-item" onclick="fillDemo('admin')">
+            <strong>Admin:</strong> ADM001 / admin123
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <footer class="footer">
-      Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
-    </footer>
-  </div>
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span>🎓</span> <strong>EduManage</strong> — Springfield College
+      </div>
+      <p class="footer-copy">© 2024 EduManage. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>

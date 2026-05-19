@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard — EduManage</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="dashboard-page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span>🎓</span>
+      <span class="brand-name">EduManage</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="showSection('overview', this)">
+        <span class="nav-icon">🏠</span> <span>Overview</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('assignments', this)">
+        <span class="nav-icon">📋</span> <span>Assignments</span>
+        <span class="badge" id="newSubBadge">5</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('students', this)">
+        <span class="nav-icon">🎒</span> <span>My Students</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('attendance', this)">
+        <span class="nav-icon">🗓️</span> <span>Attendance</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('grades', this)">
+        <span class="nav-icon">📊</span> <span>Grades</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('announcements', this)">
+        <span class="nav-icon">📣</span> <span>Announcements</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('profile', this)">
+        <span class="nav-icon">👤</span> <span>My Profile</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="page-title" id="pageTitle">Overview</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbarDate"></div>
+        <div class="user-avatar teacher-avatar" id="userAvatar">T</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">Teacher</span>
+          <span class="user-role">Teacher</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── OVERVIEW SECTION ── -->
+    <section class="section active" id="sec-overview">
+      <div class="welcome-banner teacher-banner">
+        <div>
+          <h2 id="welcomeMsg">Good morning! 👋</h2>
+          <p>Here's your teaching summary for today.</p>
+        </div>
+        <div class="welcome-emoji">👨‍🏫</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">🎒</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">48</span>
+            <span class="stat-card-label">Total Students</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">📋</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="activeAssignCount">4</span>
+            <span class="stat-card-label">Active Assignments</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">⏳</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="pendingGradeCount">5</span>
+            <span class="stat-card-label">Pending Reviews</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-card-icon">📚</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">3</span>
+            <span class="stat-card-label">Courses Teaching</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Recent Submissions -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>📥 Recent Submissions</h3>
+            <a href="#" onclick="showSection('assignments', null)" class="see-all">See all →</a>
+          </div>
+          <div id="recentSubmissions"></div>
+        </div>
+
+        <!-- Today's Classes -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>📅 Today's Classes</h3>
+          </div>
+          <div id="todaysClasses"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-row">
+          <h3>📊 Class Performance Overview</h3>
+        </div>
+        <div id="classPerformance"></div>
+      </div>
+    </section>
+
+    <!-- ── ASSIGNMENTS SECTION ── -->
+    <section class="section" id="sec-assignments">
+      <div class="section-header">
+        <h2>📋 Assignments</h2>
+        <button class="btn-primary" onclick="openCreateAssignment()">+ New Assignment</button>
+      </div>
+
+      <div class="filter-tabs" style="margin-bottom:20px">
+        <button class="filter-tab active" onclick="filterTeacherAssignments('all', this)">All</button>
+        <button class="filter-tab" onclick="filterTeacherAssignments('active', this)">Active</button>
+        <button class="filter-tab" onclick="filterTeacherAssignments('closed', this)">Closed</button>
+      </div>
+
+      <div class="assignments-grid" id="teacherAssignmentsGrid"></div>
+    </section>
+
+    <!-- ── STUDENTS SECTION ── -->
+    <section class="section" id="sec-students">
+      <div class="section-header">
+        <h2>🎒 My Students</h2>
+        <div class="search-box-sm">
+          <input type="text" id="studentSearch" placeholder="🔍 Search students..." oninput="filterStudents()" />
+        </div>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>ID</th>
+              <th>Course</th>
+              <th>Attendance</th>
+              <th>GPA</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ATTENDANCE SECTION ── -->
+    <section class="section" id="sec-attendance">
+      <div class="section-header">
+        <h2>🗓️ Mark Attendance</h2>
+        <div class="attendance-controls">
+          <select id="attendanceCourse" class="select-sm" onchange="loadAttendance()">
+            <option value="CS101">CS101 – Data Structures</option>
+            <option value="CS201">CS201 – Algorithms</option>
+            <option value="CS301">CS301 – Database Systems</option>
+          </select>
+          <input type="date" id="attendanceDate" class="input-sm" />
+        </div>
+      </div>
+      <div class="card">
+        <div class="attendance-actions">
+          <button class="btn-sm btn-green" onclick="markAllPresent()">✅ Mark All Present</button>
+          <button class="btn-sm btn-red" onclick="markAllAbsent()">❌ Mark All Absent</button>
+          <button class="btn-primary btn-sm" onclick="saveAttendance()">💾 Save Attendance</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Student Name</th><th>ID</th><th>Status</th></tr>
+          </thead>
+          <tbody id="attendanceMarkBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── GRADES SECTION ── -->
+    <section class="section" id="sec-grades">
+      <div class="section-header">
+        <h2>📊 Manage Grades</h2>
+        <select id="gradesCourse" class="select-sm" onchange="loadGrades()">
+          <option value="CS101">CS101 – Data Structures</option>
+          <option value="CS201">CS201 – Algorithms</option>
+          <option value="CS301">CS301 – Database Systems</option>
+        </select>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Student</th><th>ID</th><th>Assignment 1</th><th>Assignment 2</th><th>Midterm</th><th>Final</th><th>Total</th><th>Grade</th></tr>
+          </thead>
+          <tbody id="gradesManageBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ANNOUNCEMENTS SECTION ── -->
+    <section class="section" id="sec-announcements">
+      <div class="section-header">
+        <h2>📣 Announcements</h2>
+        <button class="btn-primary" onclick="openCreateAnnouncement()">+ New Announcement</button>
+      </div>
+      <div class="announcements-list" id="announcementsList"></div>
+    </section>
+
+    <!-- ── PROFILE SECTION ── -->
+    <section class="section" id="sec-profile">
+      <div class="section-header">
+        <h2>👤 My Profile</h2>
+      </div>
+      <div class="profile-layout">
+        <div class="profile-card">
+          <div class="profile-avatar-large teacher-avatar" id="profileAvatarLarge">T</div>
+          <h3 id="profileName">Teacher Name</h3>
+          <p class="profile-role-tag">👨‍🏫 Teacher</p>
+          <div class="profile-meta">
+            <div class="meta-item"><span>🆔</span><span id="profileId">TCH001</span></div>
+            <div class="meta-item"><span>📧</span><span id="profileEmail">teacher@college.edu</span></div>
+            <div class="meta-item"><span>📱</span><span>+1 (555) 987-6543</span></div>
+            <div class="meta-item"><span>🏫</span><span>Computer Science Dept.</span></div>
+          </div>
+        </div>
+        <div class="profile-details">
+          <div class="card">
+            <h3 class="card-section-title">Teaching Information</h3>
+            <div class="detail-grid">
+              <div class="detail-item"><span class="detail-label">Department</span><span class="detail-val">Computer Science</span></div>
+              <div class="detail-item"><span class="detail-label">Designation</span><span class="detail-val">Assistant Professor</span></div>
+              <div class="detail-item"><span class="detail-label">Experience</span><span class="detail-val">8 Years</span></div>
+              <div class="detail-item"><span class="detail-label">Qualification</span><span class="detail-val">Ph.D. Computer Science</span></div>
+              <div class="detail-item"><span class="detail-label">Joined</span><span class="detail-val">Aug 2016</span></div>
+              <div class="detail-item"><span class="detail-label">Employee ID</span><span class="detail-val" id="profileRoll">TCH001</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="card-section-title">Courses Teaching</h3>
+            <div class="course-chips" id="courseChips"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Create Assignment Modal -->
+  <div class="modal-overlay hidden" id="createAssignmentModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3>📋 Create New Assignment</h3>
+        <button class="modal-close" onclick="closeModal('createAssignmentModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Assignment Title *</label>
+            <input type="text" id="newAssignTitle" placeholder="e.g. Data Structures Lab 3" />
+          </div>
+          <div class="form-group">
+            <label>Course *</label>
+            <select id="newAssignCourse">
+              <option value="CS101">CS101 – Data Structures</option>
+              <option value="CS201">CS201 – Algorithms</option>
+              <option value="CS301">CS301 – Database Systems</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Due Date *</label>
+            <input type="date" id="newAssignDue" />
+          </div>
+          <div class="form-group">
+            <label>Max Marks</label>
+            <input type="number" id="newAssignMarks" value="100" min="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="newAssignDesc" rows="4" placeholder="Describe the assignment requirements, objectives, and submission instructions..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="newAssignPriority">
+            <option value="normal">Normal</option>
+            <option value="high">High Priority</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('createAssignmentModal')">Cancel</button>
+        <button class="btn-primary" onclick="createAssignment()">📋 Post Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Announcement Modal -->
+  <div class="modal-overlay hidden" id="createAnnouncementModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📣 New Announcement</h3>
+        <button class="modal-close" onclick="closeModal('createAnnouncementModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="newAnnTitle" placeholder="Announcement title" />
+        </div>
+        <div class="form-group">
+          <label>Message *</label>
+          <textarea id="newAnnMessage" rows="4" placeholder="Write your announcement..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Target Audience</label>
+          <select id="newAnnTarget">
+            <option value="all">All Students</option>
+            <option value="CS101">CS101 Class</option>
+            <option value="CS201">CS201 Class</option>
+            <option value="CS301">CS301 Class</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('createAnnouncementModal')">Cancel</button>
+        <button class="btn-primary" onclick="postAnnouncement()">📣 Post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade Submission Modal -->
+  <div class="modal-overlay hidden" id="gradeModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>✏️ Grade Submission</h3>
+        <button class="modal-close" onclick="closeModal('gradeModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="gradeModalInfo" class="modal-assign-title"></p>
+        <div class="submission-preview" id="submissionPreview"></div>
+        <div class="form-group">
+          <label>Score (out of <span id="maxMarksLabel">100</span>)</label>
+          <input type="number" id="gradeScore" min="0" placeholder="Enter score" />
+        </div>
+        <div class="form-group">
+          <label>Feedback</label>
+          <textarea id="gradeFeedback" rows="3" placeholder="Provide feedback to the student..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('gradeModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveGrade()">✅ Save Grade</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
