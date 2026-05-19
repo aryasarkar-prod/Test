@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Weather</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="app-header">
+        <h1>Weather</h1>
+        <p class="tagline">Search any city to see current conditions and a 7-day forecast.</p>
+      </header>
+
+      <section class="quick-picks" aria-label="Sample cities">
+        <button type="button" class="quick-pick" data-city="London">London</button>
+        <button type="button" class="quick-pick" data-city="New York">New York</button>
+        <button type="button" class="quick-pick" data-city="Tokyo">Tokyo</button>
+        <button type="button" class="quick-pick" data-city="Sydney">Sydney</button>
+      </section>
+
+      <form id="search-form" class="search-form" autocomplete="off">
+        <label class="visually-hidden" for="city-input">City</label>
+        <input
+          id="city-input"
+          name="city"
+          type="text"
+          placeholder="Enter a city"
+          required
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      <section id="status" class="status" aria-live="polite"></section>
+
+      <section id="current" class="card current hidden" aria-label="Current conditions"></section>
+
+      <section id="forecast" class="forecast" aria-label="7-day forecast"></section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Data source: <span id="source-badge" class="badge">unknown</span></span>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
