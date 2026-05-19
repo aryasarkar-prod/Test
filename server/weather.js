@@ -64,7 +64,7 @@ function buildResponse(source, geo, forecast) {
 
 function buildMockResponse(city, source) {
   const geo = mockGeocode(city);
-  const forecast = mockForecast(geo.latitude, geo.longitude);
+  const forecast = mockForecast(geo.latitude, geo.longitude, geo.timezone);
   return buildResponse(source, geo, forecast);
 }
 

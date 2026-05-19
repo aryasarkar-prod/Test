@@ -43,7 +43,7 @@ export function mockGeocode(_city) {
 
 // Returns a 7-day forecast plus current conditions in the same shape
 // produced by Open-Meteo's /v1/forecast endpoint (the fields we use).
-export function mockForecast(_lat, _lon) {
+export function mockForecast(_lat, _lon, timeZone = 'UTC') {
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
@@ -56,7 +56,7 @@ export function mockForecast(_lat, _lon) {
 
   return {
     current: {
-      time: new Date().toISOString().slice(0, 16),
+      time: nowInTimeZone(timeZone),
       temperature_2m: 14.2,
       weather_code: 3,
       wind_speed_10m: 11.5
@@ -69,4 +69,30 @@ export function mockForecast(_lat, _lon) {
       precipitation_sum: [0.0, 4.2, 0.1, 2.8, 0.0, 0.0, 6.5]
     }
   };
+}
+
+// Produces a YYYY-MM-DDTHH:mm string for "now" in the given IANA
+// timezone, mirroring the timezone-naive shape Open-Meteo returns for
+// current.time when timezone=auto. Defaults to UTC if the runtime
+// cannot resolve the zone.
+function nowInTimeZone(timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).formatToParts(new Date());
+    const map = {};
+    for (const p of parts) map[p.type] = p.value;
+    if (map.year && map.month && map.day && map.hour && map.minute) {
+      return `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}`;
+    }
+  } catch {
+    // fall through to UTC fallback
+  }
+  return new Date().toISOString().slice(0, 16);
 }

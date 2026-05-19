@@ -1,3 +1,5 @@
+import { formatTime, formatWeekday } from './format.js';
+
 const form = document.getElementById('search-form');
 const input = document.getElementById('city-input');
 const statusEl = document.getElementById('status');
@@ -27,46 +29,6 @@ function clearResults() {
 function formatTemp(value) {
   if (typeof value !== 'number' || Number.isNaN(value)) return '--';
   return `${Math.round(value)}\u00B0`;
-}
-
-function formatWeekday(isoDate) {
-  // Open-Meteo daily entries arrive as bare YYYY-MM-DD strings, which
-  // JS parses as UTC midnight. Combined with .toLocaleDateString in
-  // the browser's local timezone, that shifts the weekday back one
-  // day for any user west of UTC. Construct the Date from the parsed
-  // parts via Date.UTC and format in UTC so the displayed weekday
-  // matches the input date string itself, regardless of the browser's
-  // timezone or the forecast location.
-  const m = typeof isoDate === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
-  if (!m) {
-    const fallback = new Date(isoDate);
-    if (Number.isNaN(fallback.getTime())) return isoDate;
-    return fallback.toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' });
-  }
-  const utc = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
-  return utc.toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' });
-}
-
-function formatTime(isoTime, timeZone) {
-  // Open-Meteo's current.time with timezone=auto is a timezone-naive
-  // ISO string already adjusted to the location's clock. Formatting
-  // with explicit timeZone makes the displayed wall clock match the
-  // location regardless of where the browser is, and the short tz name
-  // disambiguates the reading (e.g. "Mon 11:00 PM GMT" vs. just
-  // "Mon 11:00 PM").
-  if (!isoTime) return '';
-  const d = new Date(isoTime);
-  if (Number.isNaN(d.getTime())) return isoTime;
-  const opts = {
-    weekday: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-  };
-  if (timeZone) {
-    opts.timeZone = timeZone;
-    opts.timeZoneName = 'short';
-  }
-  return d.toLocaleString(undefined, opts);
 }
 
 function sourceLabel(source) {
