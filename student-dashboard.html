@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard — EduManage</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="dashboard-page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span>🎓</span>
+      <span class="brand-name">EduManage</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="showSection('overview', this)">
+        <span class="nav-icon">🏠</span> <span>Overview</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('assignments', this)">
+        <span class="nav-icon">📋</span> <span>Assignments</span>
+        <span class="badge" id="assignBadge">3</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('grades', this)">
+        <span class="nav-icon">📊</span> <span>Grades</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('attendance', this)">
+        <span class="nav-icon">🗓️</span> <span>Attendance</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('timetable', this)">
+        <span class="nav-icon">📅</span> <span>Timetable</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('announcements', this)">
+        <span class="nav-icon">📣</span> <span>Announcements</span>
+        <span class="badge badge-red" id="annBadge">2</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('profile', this)">
+        <span class="nav-icon">👤</span> <span>My Profile</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="page-title" id="pageTitle">Overview</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbarDate"></div>
+        <div class="user-avatar" id="userAvatar">S</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">Student</span>
+          <span class="user-role">Student</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── OVERVIEW SECTION ── -->
+    <section class="section active" id="sec-overview">
+      <div class="welcome-banner">
+        <div>
+          <h2 id="welcomeMsg">Welcome back! 👋</h2>
+          <p>Here's what's happening today.</p>
+        </div>
+        <div class="welcome-emoji">🎒</div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">📋</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="pendingCount">3</span>
+            <span class="stat-card-label">Pending Assignments</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">📊</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="gpaDisplay">3.8</span>
+            <span class="stat-card-label">Current GPA</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">🗓️</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="attendanceDisplay">92%</span>
+            <span class="stat-card-label">Attendance</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-card-icon">📚</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">6</span>
+            <span class="stat-card-label">Enrolled Courses</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column -->
+      <div class="two-col">
+        <!-- Upcoming Assignments -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>📋 Upcoming Assignments</h3>
+            <a href="#" onclick="showSection('assignments', null)" class="see-all">See all →</a>
+          </div>
+          <div class="assignment-list" id="upcomingAssignments"></div>
+        </div>
+
+        <!-- Recent Grades -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>📊 Recent Grades</h3>
+            <a href="#" onclick="showSection('grades', null)" class="see-all">See all →</a>
+          </div>
+          <div class="grade-list" id="recentGrades"></div>
+        </div>
+      </div>
+
+      <!-- Announcements Preview -->
+      <div class="card">
+        <div class="card-header-row">
+          <h3>📣 Latest Announcements</h3>
+          <a href="#" onclick="showSection('announcements', null)" class="see-all">See all →</a>
+        </div>
+        <div id="announcementPreview"></div>
+      </div>
+    </section>
+
+    <!-- ── ASSIGNMENTS SECTION ── -->
+    <section class="section" id="sec-assignments">
+      <div class="section-header">
+        <h2>📋 My Assignments</h2>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterAssignments('all', this)">All</button>
+          <button class="filter-tab" onclick="filterAssignments('pending', this)">Pending</button>
+          <button class="filter-tab" onclick="filterAssignments('submitted', this)">Submitted</button>
+          <button class="filter-tab" onclick="filterAssignments('graded', this)">Graded</button>
+        </div>
+      </div>
+      <div class="assignments-grid" id="assignmentsGrid"></div>
+    </section>
+
+    <!-- ── GRADES SECTION ── -->
+    <section class="section" id="sec-grades">
+      <div class="section-header">
+        <h2>📊 My Grades</h2>
+      </div>
+      <div class="gpa-banner">
+        <div class="gpa-circle">
+          <span class="gpa-num" id="gpaCircle">3.8</span>
+          <span class="gpa-text">GPA</span>
+        </div>
+        <div class="gpa-info">
+          <h3>Academic Performance</h3>
+          <p>Semester: Fall 2024 &nbsp;|&nbsp; Year: 2nd</p>
+          <div class="grade-bar-wrapper">
+            <div class="grade-bar" style="width:76%"></div>
+          </div>
+          <p class="gpa-status">🌟 Excellent Standing</p>
+        </div>
+      </div>
+      <div class="card">
+        <table class="data-table" id="gradesTable">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Code</th>
+              <th>Credits</th>
+              <th>Marks</th>
+              <th>Grade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="gradesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ATTENDANCE SECTION ── -->
+    <section class="section" id="sec-attendance">
+      <div class="section-header">
+        <h2>🗓️ Attendance Record</h2>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="presentCount">92%</span>
+            <span class="stat-card-label">Present</span>
+          </div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-card-icon">❌</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="absentCount">8%</span>
+            <span class="stat-card-label">Absent</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">📆</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">120</span>
+            <span class="stat-card-label">Total Classes</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Subject</th><th>Total Classes</th><th>Attended</th><th>Percentage</th><th>Status</th></tr>
+          </thead>
+          <tbody id="attendanceBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── TIMETABLE SECTION ── -->
+    <section class="section" id="sec-timetable">
+      <div class="section-header">
+        <h2>📅 My Timetable</h2>
+        <span class="semester-tag">Fall 2024</span>
+      </div>
+      <div class="card">
+        <div class="timetable-wrapper">
+          <table class="timetable" id="timetableTable">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+              </tr>
+            </thead>
+            <tbody id="timetableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ANNOUNCEMENTS SECTION ── -->
+    <section class="section" id="sec-announcements">
+      <div class="section-header">
+        <h2>📣 Announcements</h2>
+      </div>
+      <div class="announcements-list" id="announcementsList"></div>
+    </section>
+
+    <!-- ── PROFILE SECTION ── -->
+    <section class="section" id="sec-profile">
+      <div class="section-header">
+        <h2>👤 My Profile</h2>
+      </div>
+      <div class="profile-layout">
+        <div class="profile-card">
+          <div class="profile-avatar-large" id="profileAvatarLarge">S</div>
+          <h3 id="profileName">Student Name</h3>
+          <p class="profile-role-tag">🎒 Student</p>
+          <div class="profile-meta">
+            <div class="meta-item"><span>🆔</span><span id="profileId">STU2024001</span></div>
+            <div class="meta-item"><span>📧</span><span id="profileEmail">student@college.edu</span></div>
+            <div class="meta-item"><span>📱</span><span>+1 (555) 012-3456</span></div>
+            <div class="meta-item"><span>📍</span><span>Springfield, IL</span></div>
+          </div>
+        </div>
+        <div class="profile-details">
+          <div class="card">
+            <h3 class="card-section-title">Academic Information</h3>
+            <div class="detail-grid">
+              <div class="detail-item"><span class="detail-label">Department</span><span class="detail-val" id="profileDept">Computer Science</span></div>
+              <div class="detail-item"><span class="detail-label">Year</span><span class="detail-val">2nd Year</span></div>
+              <div class="detail-item"><span class="detail-label">Semester</span><span class="detail-val">Fall 2024</span></div>
+              <div class="detail-item"><span class="detail-label">Section</span><span class="detail-val">A</span></div>
+              <div class="detail-item"><span class="detail-label">Roll No.</span><span class="detail-val" id="profileRoll">2024001</span></div>
+              <div class="detail-item"><span class="detail-label">Admission Year</span><span class="detail-val">2023</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="card-section-title">Enrolled Courses</h3>
+            <div class="course-chips" id="courseChips"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Assignment Submit Modal -->
+  <div class="modal-overlay hidden" id="submitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📤 Submit Assignment</h3>
+        <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="modalAssignTitle" class="modal-assign-title"></p>
+        <div class="form-group">
+          <label>Your Submission</label>
+          <textarea id="submissionText" rows="5" placeholder="Type your answer or paste your work here..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Attach File (optional)</label>
+          <div class="file-drop">📎 Click to select file or drag & drop</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('submitModal')">Cancel</button>
+        <button class="btn-primary" onclick="submitAssignment()">📤 Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
