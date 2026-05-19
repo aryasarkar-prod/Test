@@ -5,6 +5,13 @@ const currentEl = document.getElementById('current');
 const forecastEl = document.getElementById('forecast');
 const sourceBadge = document.getElementById('source-badge');
 const quickPicks = document.querySelectorAll('.quick-pick');
+const submitButton = form.querySelector('button[type="submit"]');
+
+// Tracks the in-flight search request. A monotonically increasing
+// token tags every searchCity invocation so a slow earlier response
+// can be ignored when a newer search has already started, and the
+// matching AbortController lets us stop the earlier fetch as well.
+let activeSearch = null;
 
 function setStatus(message, { error = false } = {}) {
   statusEl.textContent = message;
@@ -176,12 +183,29 @@ function renderWeather(data) {
 }
 
 async function searchCity(city) {
+  // If a previous search is still pending, abort it and ignore its
+  // eventual response. This prevents a slow earlier request from
+  // overwriting the UI for a newer search.
+  if (activeSearch) {
+    activeSearch.controller.abort();
+  }
+  const controller = new AbortController();
+  const search = { controller };
+  activeSearch = search;
+
   setStatus('Loading...');
   clearResults();
+  if (submitButton) submitButton.disabled = true;
+
   try {
-    const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+    const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`, {
+      signal: controller.signal
+    });
+    if (activeSearch !== search) return;
+
     if (res.ok) {
       const data = await res.json();
+      if (activeSearch !== search) return;
       renderWeather(data);
       setStatus('');
       return;
@@ -192,8 +216,17 @@ async function searchCity(city) {
     }
     setStatus('Something went wrong, please try again', { error: true });
   } catch (err) {
+    // A superseded request will throw AbortError; that is intentional
+    // and should not surface as a user-visible error.
+    if (err && err.name === 'AbortError') return;
+    if (activeSearch !== search) return;
     console.error('Weather request failed', err);
     setStatus('Something went wrong, please try again', { error: true });
+  } finally {
+    if (activeSearch === search) {
+      activeSearch = null;
+      if (submitButton) submitButton.disabled = false;
+    }
   }
 }
 
