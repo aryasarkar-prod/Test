@@ -113,6 +113,11 @@ export async function getWeather(city, { mockMode = false, fetchImpl = globalThi
     if (err && err.code === 'NOT_FOUND') {
       throw err;
     }
+    // Log the underlying upstream failure before serving the fallback
+    // so operators have a server-side signal when the live path breaks.
+    // The public response shape is unchanged: callers still get a 200
+    // tagged with source: "mock-fallback".
+    console.error('[weather] upstream call failed, serving mock-fallback:', err);
     return buildMockResponse(city, 'mock-fallback');
   }
 }

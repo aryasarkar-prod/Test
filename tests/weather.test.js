@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getWeather } from '../server/weather.js';
 import { weatherCodeToText } from '../server/mockData.js';
 
@@ -10,7 +10,54 @@ function jsonResponse(body, { ok = true, status = 200 } = {}) {
   };
 }
 
+const SAMPLE_GEOCODE_BODY = {
+  results: [
+    {
+      name: 'Paris',
+      country: 'France',
+      latitude: 48.8566,
+      longitude: 2.3522,
+      timezone: 'Europe/Paris'
+    }
+  ]
+};
+
+const SAMPLE_FORECAST_BODY = {
+  current: {
+    time: '2024-01-01T12:00',
+    temperature_2m: 7.5,
+    weather_code: 0,
+    wind_speed_10m: 9.0
+  },
+  daily: {
+    time: [
+      '2024-01-01',
+      '2024-01-02',
+      '2024-01-03',
+      '2024-01-04',
+      '2024-01-05',
+      '2024-01-06',
+      '2024-01-07'
+    ],
+    temperature_2m_max: [8, 9, 10, 11, 12, 13, 14],
+    temperature_2m_min: [1, 2, 3, 4, 5, 6, 7],
+    weather_code: [0, 1, 2, 3, 45, 61, 95],
+    precipitation_sum: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+  }
+};
+
 describe('getWeather', () => {
+  // Silence the [weather] console.error introduced by the mock-fallback
+  // logging so the test output stays readable. The spy is also asserted
+  // against in the dedicated logging test below.
+  let errorSpy;
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
+
   it('returns mock data when mockMode: true is passed', async () => {
     const fetchImpl = vi.fn();
     const result = await getWeather('anywhere', { mockMode: true, fetchImpl });
@@ -23,45 +70,10 @@ describe('getWeather', () => {
   });
 
   it('calls geocoding then forecast URLs in order and returns source "open-meteo"', async () => {
-    const geocodeBody = {
-      results: [
-        {
-          name: 'Paris',
-          country: 'France',
-          latitude: 48.8566,
-          longitude: 2.3522,
-          timezone: 'Europe/Paris'
-        }
-      ]
-    };
-    const forecastBody = {
-      current: {
-        time: '2024-01-01T12:00',
-        temperature_2m: 7.5,
-        weather_code: 0,
-        wind_speed_10m: 9.0
-      },
-      daily: {
-        time: [
-          '2024-01-01',
-          '2024-01-02',
-          '2024-01-03',
-          '2024-01-04',
-          '2024-01-05',
-          '2024-01-06',
-          '2024-01-07'
-        ],
-        temperature_2m_max: [8, 9, 10, 11, 12, 13, 14],
-        temperature_2m_min: [1, 2, 3, 4, 5, 6, 7],
-        weather_code: [0, 1, 2, 3, 45, 61, 95],
-        precipitation_sum: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-      }
-    };
-
     const fetchImpl = vi
       .fn()
-      .mockResolvedValueOnce(jsonResponse(geocodeBody))
-      .mockResolvedValueOnce(jsonResponse(forecastBody));
+      .mockResolvedValueOnce(jsonResponse(SAMPLE_GEOCODE_BODY))
+      .mockResolvedValueOnce(jsonResponse(SAMPLE_FORECAST_BODY));
 
     const result = await getWeather('Paris', { fetchImpl });
 
@@ -102,14 +114,72 @@ describe('getWeather', () => {
     expect(result.location.name).toBe('London');
   });
 
-  it('returns source "mock-fallback" when fetchImpl hangs longer than the timeout', async () => {
+  it('returns source "mock-fallback" when the geocoding call resolves with a non-2xx status', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({}, { ok: false, status: 503 }));
+
+    const result = await getWeather('Paris', { fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(result.source).toBe('mock-fallback');
+    expect(result.daily).toHaveLength(7);
+  });
+
+  it('returns source "mock-fallback" when geocoding succeeds but the forecast call rejects', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(SAMPLE_GEOCODE_BODY))
+      .mockRejectedValueOnce(new Error('forecast network down'));
+
+    const result = await getWeather('Paris', { fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(result.source).toBe('mock-fallback');
+    expect(result.daily).toHaveLength(7);
+  });
+
+  it('returns source "mock-fallback" when geocoding succeeds but the forecast responds non-2xx', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(SAMPLE_GEOCODE_BODY))
+      .mockResolvedValueOnce(jsonResponse({}, { ok: false, status: 502 }));
+
+    const result = await getWeather('Paris', { fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(result.source).toBe('mock-fallback');
+    expect(result.daily).toHaveLength(7);
+  });
+
+  it('logs the underlying error to console.error before serving the fallback', async () => {
+    const upstream = new Error('network down');
+    const fetchImpl = vi.fn().mockRejectedValueOnce(upstream);
+
+    const result = await getWeather('London', { fetchImpl });
+
+    expect(result.source).toBe('mock-fallback');
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    const args = errorSpy.mock.calls[0];
+    // First arg is a tagged prefix, last arg is the original error so the
+    // operator can see the cause.
+    expect(args[0]).toMatch(/\[weather\]/);
+    expect(args[args.length - 1]).toBe(upstream);
+  });
+
+  it('passes an AbortSignal to fetchImpl and returns "mock-fallback" when the call hangs', async () => {
     const previous = process.env.WEATHER_FETCH_TIMEOUT_MS;
     process.env.WEATHER_FETCH_TIMEOUT_MS = '20';
     try {
+      // Reject synchronously when no signal is provided so a regression
+      // that drops `signal: timeoutSignal(...)` from the fetch options
+      // fails by assertion, not by vitest's per-test timeout.
       const fetchImpl = vi.fn((_url, opts) => {
         const signal = opts && opts.signal;
+        if (!signal) {
+          return Promise.reject(new Error('test fetchImpl received no AbortSignal'));
+        }
         return new Promise((_resolve, reject) => {
-          if (!signal) return;
           if (signal.aborted) {
             reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
             return;
