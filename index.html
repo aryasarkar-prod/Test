@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          id="cityInput"
+          placeholder="Search city..."
+          autocomplete="off"
+        />
+        <button id="searchBtn" aria-label="Search">Go</button>
+      </div>
+      <div id="suggestions" class="suggestions hidden"></div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMsg" class="error hidden">
+      <span>⚠️</span> <span id="errorText">City not found. Please try again.</span>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Fetching weather...</p>
+    </div>
+
+    <!-- Weather Card -->
+    <div id="weatherCard" class="weather-card hidden">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span id="cityName">—</span>
+          <span id="countryName" class="country"></span>
+        </div>
+        <p id="dateTime" class="datetime"></p>
+      </div>
+
+      <!-- Main Temp -->
+      <div class="main-weather">
+        <div class="temp-block">
+          <span id="weatherIcon" class="weather-emoji">🌤</span>
+          <div>
+            <p id="temperature" class="temperature">—</p>
+            <p id="feelsLike" class="feels-like">Feels like —</p>
+          </div>
+        </div>
+        <p id="weatherDesc" class="weather-desc">—</p>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-icon">💧</span>
+          <span class="stat-label">Humidity</span>
+          <span id="humidity" class="stat-value">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">💨</span>
+          <span class="stat-label">Wind</span>
+          <span id="windSpeed" class="stat-value">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🌡</span>
+          <span class="stat-label">High / Low</span>
+          <span id="highLow" class="stat-value">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">👁</span>
+          <span class="stat-label">Visibility</span>
+          <span id="visibility" class="stat-value">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🌅</span>
+          <span class="stat-label">Sunrise</span>
+          <span id="sunrise" class="stat-value">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🌇</span>
+          <span class="stat-label">Sunset</span>
+          <span id="sunset" class="stat-value">—</span>
+        </div>
+      </div>
+
+      <!-- 5-Day Forecast -->
+      <div class="forecast-section">
+        <h3 class="forecast-title">5-Day Forecast</h3>
+        <div id="forecastRow" class="forecast-row"></div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
