@@ -74,15 +74,140 @@
         </a>
       </div>
     </div>
-    <div class="hero-visual reveal">
-      <div class="avatar-ring">
-        <div class="avatar-inner">AR</div>
+    <!-- ── ORBITAL IDENTITY CAROUSEL ── -->
+    <div class="hero-visual reveal" id="orbitalSystem">
+
+      <!-- Decorative background glow layers -->
+      <div class="orbit-bg-glow glow-a"></div>
+      <div class="orbit-bg-glow glow-b"></div>
+      <div class="orbit-bg-glow glow-c"></div>
+
+      <!-- ── RING 1 — outermost: passions & hobbies (8 tags, CW slow) ── -->
+      <div class="orbit-ring ring-1" id="ring1">
+        <svg class="orbit-path-svg" viewBox="0 0 460 460" fill="none">
+          <circle cx="230" cy="230" r="220" stroke="url(#grad1)" stroke-width="1.2" stroke-dasharray="6 10"/>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="460" y2="460" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#6366f1" stop-opacity="0.5"/>
+              <stop offset="50%"  stop-color="#ec4899" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="orbit-badge ob-1a" data-angle="0">
+          <span class="ob-icon">📚</span><span class="ob-label">Bibliophile</span>
+        </div>
+        <div class="orbit-badge ob-1b" data-angle="45">
+          <span class="ob-icon">🎵</span><span class="ob-label">Melophile</span>
+        </div>
+        <div class="orbit-badge ob-1c" data-angle="90">
+          <span class="ob-icon">🎸</span><span class="ob-label">Guitarist</span>
+        </div>
+        <div class="orbit-badge ob-1d" data-angle="135">
+          <span class="ob-icon">✈️</span><span class="ob-label">Hodophile</span>
+        </div>
+        <div class="orbit-badge ob-1e" data-angle="180">
+          <span class="ob-icon">✏️</span><span class="ob-label">Sketch Artist</span>
+        </div>
+        <div class="orbit-badge ob-1f" data-angle="225">
+          <span class="ob-icon">🎬</span><span class="ob-label">Video Editing</span>
+        </div>
+        <div class="orbit-badge ob-1g" data-angle="270">
+          <span class="ob-icon">📸</span><span class="ob-label">Photography</span>
+        </div>
+        <div class="orbit-badge ob-1h" data-angle="315">
+          <span class="ob-icon">🎮</span><span class="ob-label">Gamer</span>
+        </div>
       </div>
-      <div class="floating-chip chip-1">⚡ React</div>
-      <div class="floating-chip chip-2">🚀 Node.js</div>
-      <div class="floating-chip chip-3">🎨 UI/UX</div>
-      <div class="floating-chip chip-4">🗄️ MongoDB</div>
-    </div>
+
+      <!-- ── RING 2 — middle: tech stack (6 tags, CCW medium) ── -->
+      <div class="orbit-ring ring-2" id="ring2">
+        <svg class="orbit-path-svg" viewBox="0 0 460 460" fill="none">
+          <circle cx="230" cy="230" r="155" stroke="url(#grad2)" stroke-width="1" stroke-dasharray="4 8"/>
+          <defs>
+            <linearGradient id="grad2" x1="0" y1="0" x2="460" y2="460" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#8b5cf6" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="orbit-badge ob-2a" data-angle="30">
+          <span class="ob-icon">⚛️</span><span class="ob-label">React</span>
+        </div>
+        <div class="orbit-badge ob-2b" data-angle="90">
+          <span class="ob-icon">🟦</span><span class="ob-label">TypeScript</span>
+        </div>
+        <div class="orbit-badge ob-2c" data-angle="150">
+          <span class="ob-icon">🟩</span><span class="ob-label">Node.js</span>
+        </div>
+        <div class="orbit-badge ob-2d" data-angle="210">
+          <span class="ob-icon">🔺</span><span class="ob-label">Next.js</span>
+        </div>
+        <div class="orbit-badge ob-2e" data-angle="270">
+          <span class="ob-icon">🗄️</span><span class="ob-label">PostgreSQL</span>
+        </div>
+        <div class="orbit-badge ob-2f" data-angle="330">
+          <span class="ob-icon">🐋</span><span class="ob-label">Docker</span>
+        </div>
+      </div>
+
+      <!-- ── RING 3 — innermost: status tags (3 tags, CW fast) ── -->
+      <div class="orbit-ring ring-3" id="ring3">
+        <svg class="orbit-path-svg" viewBox="0 0 460 460" fill="none">
+          <circle cx="230" cy="230" r="88" stroke="url(#grad3)" stroke-width="1.5"/>
+          <defs>
+            <linearGradient id="grad3" x1="0" y1="0" x2="460" y2="460" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#6366f1" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#ec4899" stop-opacity="0.8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="orbit-badge ob-3a status-badge" data-angle="0">
+          <span class="ob-icon">💼</span><span class="ob-label">Full Stack</span>
+        </div>
+        <div class="orbit-badge ob-3b status-badge" data-angle="120">
+          <span class="ob-dot-pulse"></span><span class="ob-label">Open to Work</span>
+        </div>
+        <div class="orbit-badge ob-3c status-badge" data-angle="240">
+          <span class="ob-icon">🚀</span><span class="ob-label">5+ Years</span>
+        </div>
+      </div>
+
+      <!-- ── PROFILE CENTRE ── -->
+      <div class="orbit-centre">
+        <!-- Spinning halo -->
+        <div class="centre-halo halo-outer"></div>
+        <div class="centre-halo halo-inner"></div>
+        <!-- Profile carousel wrapper -->
+        <div class="profile-carousel" id="profileCarousel">
+          <!-- Slide 1 — initials / avatar placeholder -->
+          <div class="profile-slide active">
+            <div class="profile-avatar">
+              <span class="avatar-initials">AR</span>
+            </div>
+          </div>
+          <!-- Slide 2 — "coder" persona -->
+          <div class="profile-slide">
+            <div class="profile-avatar avatar-code">
+              <span class="avatar-code-text">&lt;/&gt;</span>
+            </div>
+          </div>
+          <!-- Slide 3 — creative persona -->
+          <div class="profile-slide">
+            <div class="profile-avatar avatar-create">
+              <span class="avatar-emoji">🎨</span>
+            </div>
+          </div>
+        </div>
+        <!-- Carousel dots -->
+        <div class="carousel-dots">
+          <button class="cdot active" data-idx="0"></button>
+          <button class="cdot" data-idx="1"></button>
+          <button class="cdot" data-idx="2"></button>
+        </div>
+      </div>
+
+    </div><!-- /hero-visual -->
     <a href="#about" class="scroll-down" aria-label="Scroll down">
       <div class="scroll-arrow"></div>
     </a>
