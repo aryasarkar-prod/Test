@@ -1,0 +1,258 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ──────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  avatar        String?
+  plan          Plan      @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Auth
+  accounts      Account[]
+  sessions      Session[]
+
+  // Content
+  notes         Note[]
+  folders       Folder[]
+  tags          Tag[]
+  tasks         Task[]
+  comments      Comment[]
+
+  // Collaboration
+  collaborations NoteCollaborator[]
+
+  @@index([email])
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+// ─── OAuth ──────────────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ─── Notes ──────────────────────────────────────────────────────────────────
+
+model Note {
+  id          String   @id @default(cuid())
+  title       String   @default("Untitled")
+  content     String   @default("") @db.Text
+  excerpt     String   @default("")
+  wordCount   Int      @default(0)
+  readTime    Int      @default(1)
+  color       String?
+  coverImage  String?
+  isPinned    Boolean  @default(false)
+  isStarred   Boolean  @default(false)
+  isTrashed   Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  reminder    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  folderId    String?
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  tags        NoteTag[]
+  versions    NoteVersion[]
+  collaborators NoteCollaborator[]
+  comments    Comment[]
+
+  @@index([authorId])
+  @@index([folderId])
+  @@index([isPinned, isStarred])
+  @@fulltext([title, content])
+}
+
+model NoteVersion {
+  id        String   @id @default(cuid())
+  noteId    String
+  title     String
+  content   String   @db.Text
+  authorId  String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+}
+
+model NoteCollaborator {
+  id     String @id @default(cuid())
+  noteId String
+  userId String
+  role   CollabRole @default(VIEWER)
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, userId])
+}
+
+enum CollabRole {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+// ─── Folders ────────────────────────────────────────────────────────────────
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6366f1")
+  icon      String   @default("📁")
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  notes     Note[]
+  parent    Folder?  @relation("FolderChildren", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderChildren")
+
+  @@index([authorId])
+}
+
+// ─── Tags ────────────────────────────────────────────────────────────────────
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String
+  color     String    @default("#6366f1")
+  createdAt DateTime  @default(now())
+
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  notes     NoteTag[]
+
+  @@unique([authorId, name])
+  @@index([authorId])
+}
+
+model NoteTag {
+  noteId String
+  tagId  String
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, tagId])
+}
+
+// ─── Tasks ──────────────────────────────────────────────────────────────────
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?     @db.Text
+  status      TaskStatus  @default(TODO)
+  priority    Priority    @default(MEDIUM)
+  dueDate     DateTime?
+  tags        String[]    @default([])
+  noteId      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  authorId    String
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  subtasks    SubTask[]
+
+  @@index([authorId])
+  @@index([status])
+}
+
+model SubTask {
+  id        String  @id @default(cuid())
+  title     String
+  completed Boolean @default(false)
+  taskId    String
+  task      Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ─── Comments ────────────────────────────────────────────────────────────────
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+}
