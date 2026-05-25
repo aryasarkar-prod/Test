@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  # PostgreSQL database
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: noteflow
+      POSTGRES_PASSWORD: noteflow_secret
+      POSTGRES_DB: noteflow
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U noteflow']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for session caching & pub/sub)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://noteflow:noteflow_secret@db:5432/noteflow
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PORT: 4000
+      NODE_ENV: production
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - '4000:4000'
+
+  # Next.js frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_WS_URL: ws://localhost:4000/ws
+    ports:
+      - '3000:3000'
+
+volumes:
+  postgres_data:
+  redis_data:
